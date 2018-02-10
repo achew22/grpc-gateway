@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 
+	"golang.org/x/net/context"
+
 	"github.com/grpc-ecosystem/grpc-gateway/examples/clients/abe"
 	"github.com/grpc-ecosystem/grpc-gateway/examples/clients/echo"
 )
@@ -17,10 +19,12 @@ func TestEchoClient(t *testing.T) {
 		return
 	}
 
-	cl := echo.NewEchoServiceApiWithBasePath("http://localhost:8080")
-	resp, _, err := cl.Echo("foo")
+	config := echo.NewConfiguration()
+	config.BasePath = "http://localhost:8080"
+	cl := echo.NewAPIClient(config)
+	resp, _, err := cl.EchoServiceApi.Echo(context.Background(), "foo")
 	if err != nil {
-		t.Errorf(`cl.Echo("foo") failed with %v; want success`, err)
+		t.Errorf(`cl.EchoServiceApi.Echo("foo") failed with %v; want success`, err)
 	}
 	if got, want := resp.Id, "foo"; got != want {
 		t.Errorf("resp.Id = %q; want %q", got, want)
@@ -33,11 +37,13 @@ func TestEchoBodyClient(t *testing.T) {
 		return
 	}
 
-	cl := echo.NewEchoServiceApiWithBasePath("http://localhost:8080")
+	config := echo.NewConfiguration()
+	config.BasePath = "http://localhost:8080"
+	cl := echo.NewAPIClient(config)
 	req := echo.ExamplepbSimpleMessage{Id: "foo"}
-	resp, _, err := cl.EchoBody(req)
+	resp, _, err := cl.EchoServiceApi.EchoBody(context.Background(), req)
 	if err != nil {
-		t.Errorf("cl.EchoBody(%#v) failed with %v; want success", req, err)
+		t.Errorf("cl.EchoServiceApi.EchoBody(%#v) failed with %v; want success", req, err)
 	}
 	if got, want := resp.Id, "foo"; got != want {
 		t.Errorf("resp.Id = %q; want %q", got, want)
@@ -50,12 +56,14 @@ func TestAbitOfEverythingClient(t *testing.T) {
 		return
 	}
 
-	cl := abe.NewABitOfEverythingServiceApiWithBasePath("http://localhost:8080")
+	config := abe.NewConfiguration()
+	config.BasePath = "http://localhost:8080"
+	cl := abe.NewAPIClient(config)
 	testABEClientCreate(t, cl)
 	testABEClientCreateBody(t, cl)
 }
 
-func testABEClientCreate(t *testing.T, cl *abe.ABitOfEverythingServiceApi) {
+func testABEClientCreate(t *testing.T, cl *abe.APIClient) {
 	want := &abe.ExamplepbABitOfEverything{
 		FloatValue:               1.5,
 		DoubleValue:              2.5,
@@ -73,7 +81,8 @@ func testABEClientCreate(t *testing.T, cl *abe.ABitOfEverythingServiceApi) {
 		Sint64Value:              "4611686018427387903",
 		NonConventionalNameValue: "camelCase",
 	}
-	resp, _, err := cl.Create(
+	resp, _, err := cl.ABitOfEverythingServiceApi.Create(
+		context.Background(),
 		want.FloatValue,
 		want.DoubleValue,
 		want.Int64Value,
@@ -91,7 +100,7 @@ func testABEClientCreate(t *testing.T, cl *abe.ABitOfEverythingServiceApi) {
 		want.NonConventionalNameValue,
 	)
 	if err != nil {
-		t.Errorf("cl.Create(%#v) failed with %v; want success", want, err)
+		t.Errorf("cl.EchoServiceApi.Create(%#v) failed with %v; want success", want, err)
 	}
 	if resp.Uuid == "" {
 		t.Errorf("resp.Uuid is empty; want not empty")
@@ -102,7 +111,7 @@ func testABEClientCreate(t *testing.T, cl *abe.ABitOfEverythingServiceApi) {
 	}
 }
 
-func testABEClientCreateBody(t *testing.T, cl *abe.ABitOfEverythingServiceApi) {
+func testABEClientCreateBody(t *testing.T, cl *abe.APIClient) {
 	t.Log("TODO: support enum")
 	return
 
@@ -148,9 +157,9 @@ func testABEClientCreateBody(t *testing.T, cl *abe.ABitOfEverythingServiceApi) {
 			"b": {Name: "y", Amount: 2},
 		},
 	}
-	resp, _, err := cl.CreateBody(want)
+	resp, _, err := cl.ABitOfEverythingServiceApi.CreateBody(context.Background(), want)
 	if err != nil {
-		t.Errorf("cl.CreateBody(%#v) failed with %v; want success", want, err)
+		t.Errorf("cl.ABitOfEverythingServiceApi.CreateBody(%#v) failed with %v; want success", want, err)
 	}
 	if resp.Uuid == "" {
 		t.Errorf("resp.Uuid is empty; want not empty")
