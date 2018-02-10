@@ -18,6 +18,7 @@ before_install:
 - go get github.com/go-resty/resty
 - go get golang.org/x/oauth2
 - go get golang.org/x/net/context
+- go get github.com/go-test/deep
 install:
 - go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 - go get github.com/grpc-ecosystem/grpc-gateway/runtime

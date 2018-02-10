@@ -13,7 +13,11 @@ var (
 	acceptHeader      = http.CanonicalHeaderKey("Accept")
 	contentTypeHeader = http.CanonicalHeaderKey("Content-Type")
 
-	defaultMarshaler = &JSONPb{OrigName: true}
+	defaultMarshaler = &JSONPb{
+		// Rewrite the field names to the proto3 json spec.
+		OrigName:     false,
+		EmitDefaults: true,
+	}
 )
 
 // MarshalerForRequest returns the inbound/outbound marshalers for this request.

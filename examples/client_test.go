@@ -1,9 +1,9 @@
 package main
 
 import (
-	"reflect"
 	"testing"
 
+	"github.com/go-test/deep"
 	"golang.org/x/net/context"
 
 	"github.com/grpc-ecosystem/grpc-gateway/examples/clients/abe"
@@ -64,7 +64,7 @@ func TestAbitOfEverythingClient(t *testing.T) {
 }
 
 func testABEClientCreate(t *testing.T, cl *abe.APIClient) {
-	want := &abe.ExamplepbABitOfEverything{
+	want := abe.ExamplepbABitOfEverything{
 		FloatValue:               1.5,
 		DoubleValue:              2.5,
 		Int64Value:               "4294967296",
@@ -106,15 +106,12 @@ func testABEClientCreate(t *testing.T, cl *abe.APIClient) {
 		t.Errorf("resp.Uuid is empty; want not empty")
 	}
 	resp.Uuid = ""
-	if got := resp; !reflect.DeepEqual(got, want) {
-		t.Errorf("resp = %#v; want %#v", got, want)
+	if diff := deep.Equal(resp, want); diff != nil {
+		t.Error(diff)
 	}
 }
 
 func testABEClientCreateBody(t *testing.T, cl *abe.APIClient) {
-	t.Log("TODO: support enum")
-	return
-
 	want := abe.ExamplepbABitOfEverything{
 		FloatValue:               1.5,
 		DoubleValue:              2.5,
@@ -144,9 +141,9 @@ func testABEClientCreateBody(t *testing.T, cl *abe.APIClient) {
 		},
 		RepeatedStringValue: []string{"a", "b", "c"},
 		OneofString:         "x",
-		MapValue:            map[string]abe.ExamplepbNumericEnum{
-		// "a": abe.ExamplepbNumericEnum_ONE,
-		// "b": abe.ExamplepbNumericEnum_ZERO,
+		MapValue: map[string]abe.ExamplepbNumericEnum{
+			"a": abe.ONE,
+			"b": abe.ZERO,
 		},
 		MappedStringValue: map[string]string{
 			"a": "x",
@@ -165,7 +162,7 @@ func testABEClientCreateBody(t *testing.T, cl *abe.APIClient) {
 		t.Errorf("resp.Uuid is empty; want not empty")
 	}
 	resp.Uuid = ""
-	if got := resp; !reflect.DeepEqual(got, want) {
-		t.Errorf("resp = %#v; want %#v", got, want)
+	if diff := deep.Equal(resp, want); diff != nil {
+		t.Error(diff)
 	}
 }
